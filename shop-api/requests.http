@@ -1,0 +1,110 @@
+### ไฟล์นี้กดส่ง request ได้เลยใน VS Code (ติดตั้ง extension "REST Client") หรือ IntelliJ
+### กด "Send Request" ที่อยู่เหนือแต่ละบล็อก
+
+@base = http://localhost:8081/api
+
+########## CATEGORY ##########
+
+### ดูหมวดหมู่ทั้งหมด → 200
+GET {{base}}/categories
+
+### ดูหมวดหมู่ id 1 → 200
+GET {{base}}/categories/1
+
+### ดูสินค้าในหมวดหมู่ id 2 → 200
+GET {{base}}/categories/2/products
+
+### สร้างหมวดหมู่ → 201 + header Location
+POST {{base}}/categories
+Content-Type: application/json
+
+{
+  "name": "ของเล่น",
+  "description": "ของเล่นเด็กและโมเดล"
+}
+
+### สร้างชื่อซ้ำ → 409 Conflict
+POST {{base}}/categories
+Content-Type: application/json
+
+{
+  "name": "หนังสือ"
+}
+
+### แก้ไขหมวดหมู่ → 200
+PUT {{base}}/categories/3
+Content-Type: application/json
+
+{
+  "name": "หนังสือและนิตยสาร",
+  "description": "หนังสือเรียน นิยาย นิตยสาร"
+}
+
+### ลบหมวดหมู่ที่ยังมีสินค้า → 409 Conflict
+DELETE {{base}}/categories/1
+
+
+########## PRODUCT ##########
+
+### ดูสินค้าแบบแบ่งหน้า (ค่าเริ่มต้น page=0, size=10, sort=id) → 200
+GET {{base}}/products
+
+### ค้นหา + กรองหมวด + เรียงราคามากไปน้อย + หน้าละ 2 ชิ้น
+GET {{base}}/products?keyword=เมาส์&categoryId=2&page=0&size=2&sort=price,desc
+
+### sort ด้วยฟิลด์ที่ไม่อนุญาต → 400
+GET {{base}}/products?sort=password
+
+### ดูสินค้า id 1 → 200
+GET {{base}}/products/1
+
+### ไม่มีสินค้านี้ → 404
+GET {{base}}/products/999
+
+### id ไม่ใช่ตัวเลข → 400
+GET {{base}}/products/abc
+
+### สร้างสินค้า → 201
+POST {{base}}/products
+Content-Type: application/json
+
+{
+  "name": "แผ่นรองเมาส์",
+  "price": 99.50,
+  "stock": 100,
+  "categoryId": 2
+}
+
+### ข้อมูลไม่ครบ/ผิด → 400 พร้อม fieldErrors
+POST {{base}}/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "price": -10
+}
+
+### หมวดหมู่ไม่มีอยู่ → 404
+POST {{base}}/products
+Content-Type: application/json
+
+{
+  "name": "ของลึกลับ",
+  "price": 10,
+  "stock": 1,
+  "categoryId": 999
+}
+
+### แก้ไขสินค้า → 200
+PUT {{base}}/products/1
+Content-Type: application/json
+
+{
+  "name": "เสื้อยืดสีดำ",
+  "price": 219.00,
+  "stock": 45,
+  "categoryId": 1
+}
+
+### ลบสินค้า → 204 No Content
+DELETE {{base}}/products/7
